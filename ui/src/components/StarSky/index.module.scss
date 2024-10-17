@@ -1,0 +1,38 @@
+// 生成n个随机Shadow
+@function getShadows($n) {
+  $shadows: '#{random(100)-50}vw #{random(100)}vh #f1f1f1';
+  @for $i from 2 through $n {
+    $shadows: '#{$shadows}, #{random(100)}vw #{random(100)}vh #f1f1f1';
+  }
+  @return unquote($shadows);
+}
+
+// 上滑动画
+@keyframes move-up {
+  to {
+    transform: translateY(-100vh);
+  }
+}
+
+$duration: 20s;
+$count: 200;
+
+// 利用循环定义5个Layer的CSS样式，并利用$i微调
+@for $i from 1 through 5 {
+  .layer#{$i} {
+    box-shadow: getShadows(floor(calc($count / $i)));
+    animation: move-up #{$duration * $i} linear infinite;
+    opacity: unquote('#{100 - 15 * $i}%');
+    &::after {
+      content: '';
+      position: fixed;
+      width: inherit;
+      height: inherit;
+      left: 0;
+      top: 100vh;
+      border-radius: inherit;
+      box-shadow: inherit;
+      opacity: inherit;
+    }
+  }
+}

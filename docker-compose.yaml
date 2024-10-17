@@ -1,0 +1,19 @@
+services:
+  chat:
+    image: kiritoxjf/vv-chat:0.1
+    restart: always
+    container_name: chat
+    environment:
+      - SSL_CERTIFICATE=/etc/ssl/chat.verivista.cn_bundle.pem
+      - SSL_CERTIFICATE_KEY=/etc/ssl/chat.verivista.cn.key
+      - TZ=Asia/Shanghai
+    networks:
+      chat_network:
+    ports:
+      - "80:1080"
+      - "443:1443"
+    volumes:
+      - /home/chat/logs:/var/log
+      - /home/chat/certs:/etc/ssl
+networks:
+  chat_network:

@@ -1,0 +1,16 @@
+{
+  "record": {
+    "hosts": [
+      "localhost",
+      "192.168.10.126",
+      "127.0.0.1",
+      "172.24.32.1",
+      "0.0.0.0"
+    ],
+    "hash": {
+      "key": "f48e1290def71d987f9ffd9e8df185ad18365779808bfeb02aea4c0cfff5d776",
+      "cert": "0604a60682e7b4024b3c943dc52434e3d99622b9cec933d2a9a8724ec6057b46"
+    }
+  },
+  "configFilePath": "D:\\Project\\VV-Web-Chat\\ui\\src\\ssl\\config.json"
+}

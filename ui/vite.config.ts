@@ -4,23 +4,41 @@ import { fileURLToPath, URL } from 'node:url'
 import Inspect from 'vite-plugin-inspect'
 import svgr from 'vite-plugin-svgr'
 import { visualizer } from 'rollup-plugin-visualizer'
+import mkcert from 'vite-plugin-mkcert'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
     // dev环境端口号
     port: 8000,
+    host: '0.0.0.0',
     // 反向代理
     proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:9000',
+      '/ws': {
+        target: 'ws://127.0.0.1:8080',
+        ws: true,
         changeOrigin: true,
-        rewrite: (path) => path, // 地址转换
-        headers: {} // 转发请求头
+        rewrite: (path) => path,
+        headers: {
+          'X-Real-IP': '127.0.0.1'
+        }
+      },
+      '/api': {
+        target: 'http://127.0.0.1:8080',
+        changeOrigin: true,
+        // rewrite: (path) => path.replace(/^\/api/, ''),
+        headers: {
+          'X-Real-IP': '127.0.0.1'
+        }
       }
     }
   },
   plugins: [
+    mkcert({
+      // force: true,
+      source: 'coding',
+      savePath: './src/ssl'
+    }),
     Inspect({
       build: true,
       outputDir: '.vite-inspect'
@@ -49,7 +67,7 @@ export default defineConfig({
   build: {
     target: 'modules', //浏览器兼容性modules|esnext
     sourcemap: false, //构建后是否生成source map文件
-    minify: 'terser', // 混淆器,terser构建后文件体积更小
+    // minify: 'terser', // 混淆器,terser构建后文件体积更小
     // outDir: envConfig.VITE_OUTPUT_DIR,  //指定输出文件包名
     outDir: 'dist',
     assetsDir: 'assets', // 指定生成静态资源的存放路径
