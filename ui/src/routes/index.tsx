@@ -1,12 +1,18 @@
+import StarSky from '@/components/StarSky'
 import { lazy } from 'react'
 import { createBrowserRouter, RouteObject, RouterProvider } from 'react-router-dom'
 
-const Home = lazy(() => import('@/pages/Home'))
+const Solo = lazy(() => import('@/pages/Solo'))
 
 const routes: RouteObject[] = [
   {
     path: '/',
-    element: <Home />
+    element: (
+      <>
+        <StarSky className="absolute bg-black -z-10" />
+        <Solo />
+      </>
+    )
   }
 ]
 

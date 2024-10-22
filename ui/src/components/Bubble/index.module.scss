@@ -1,0 +1,32 @@
+.bubble {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  @for $i from 0 through var(--bubble-count) {
+    .bubble__item#{$i} {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: var(--bubble-color);
+      position: absolute;
+      top: #{random(0, 100)};
+      left: #{random(0, 100)};
+    }
+  }
+  .child {
+    opacity: 0;
+    position: relative;
+  }
+}
+
+@keyframes moveToCenter {
+  0% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%);
+    opacity: 0;
+  }
+}

@@ -4,7 +4,6 @@ import { fileURLToPath, URL } from 'node:url'
 import Inspect from 'vite-plugin-inspect'
 import svgr from 'vite-plugin-svgr'
 import { visualizer } from 'rollup-plugin-visualizer'
-import mkcert from 'vite-plugin-mkcert'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -34,11 +33,6 @@ export default defineConfig({
     }
   },
   plugins: [
-    mkcert({
-      // force: true,
-      source: 'coding',
-      savePath: './src/ssl'
-    }),
     Inspect({
       build: true,
       outputDir: '.vite-inspect'

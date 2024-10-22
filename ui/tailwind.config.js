@@ -1,3 +1,5 @@
+import { transform } from 'typescript'
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
@@ -56,6 +58,11 @@ export default {
       'yellow-900': '#9c4400',
       'yellow-1000': '#713700'
     },
+    boxShadow: {
+      round: '4px 4px 8px var(--tw-shadow-color), -4px -4px 8px var(--tw-shadow-color)',
+      1: '2px 2px 4px var(--tw-shadow-color)',
+      2: '4px 4px 8px var(--tw-shadow-color)'
+    },
     screens: {
       phone: '0px',
       // => @media (min-width: 0px) { ... }
@@ -67,11 +74,25 @@ export default {
       own: ['Gap', 'YeZiGongChangXiaoShiTou']
     },
     extend: {
+      animation: {
+        breath: 'breath 2s ease-in-out infinite',
+        'little-ping': 'little-ping 1s cubic-bezier(0, 0, 0.2, 1) infinite'
+      },
       keyframes: {
         explode: {
           '0%': { transform: 'scale(0)', opacity: '1' },
           '50%': { opacity: '1' },
           '100%': { transform: 'scale(5)', opacity: '0' }
+        },
+        breath: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(0.87)' }
+        },
+        'little-ping': {
+          '40%': {
+            transform: 'scale(1.2)',
+            opacity: 0
+          }
         }
       }
     }

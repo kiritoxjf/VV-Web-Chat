@@ -6,6 +6,6 @@ import Routes from './routes/index.tsx'
 
 createRoot(document.getElementById('root')!).render(
   // <StrictMode>
-    <Routes />
+  <Routes />
   // </StrictMode>
 )

@@ -1,0 +1,24 @@
+.toggle:checked + .slider {
+  background-color: #40a9ff;
+}
+
+.toggle:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.toggle:checked ~ .label:before {
+  text-decoration: none;
+}
+
+.toggle:checked ~ .label::after {
+  text-decoration: underline;
+}
+
+.lComponent, .rComponent {
+  transition: all 0.5s ease-in-out;
+}
+
+.hidden {
+  transform: rotateY(90deg);
+  opacity: 0;
+}
