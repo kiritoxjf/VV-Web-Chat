@@ -8,7 +8,10 @@ import (
 func main() {
 	r := gin.Default()
 	r.GET("/ws", controller.WsHandler)
-	r.GET("/api/list", controller.WsListHandler)
+	r.POST("/api/room/create", controller.CreateRoom)
+	r.POST("/api/room/join", controller.JoinRoom)
+	r.GET("/api/list", controller.List)
+	r.GET("/api/room", controller.Room)
 	err := r.Run(":8080")
 	if err != nil {
 		return

@@ -19,7 +19,7 @@ var upgrade = websocket.Upgrader{
 
 // WsHandler WS主连接
 func WsHandler(c *gin.Context) {
-	//ip := c.GetHeader("X-Real-IP")
+	ip := c.GetHeader("X-Real-IP")
 
 	conn, err := upgrade.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -36,14 +36,15 @@ func WsHandler(c *gin.Context) {
 
 	connID := pkg.GenerateRandomString(8)
 
-	model.AddConn(connID, conn)
+	model.AddUser(connID, ip, conn)
 
-	responseJson, err := json.Marshal(map[string]string{
-		"key":   "id",
+	registerJson := map[string]string{
+		"key":   "register",
 		"value": connID,
 		"code":  StatusOK,
-	})
-	err = conn.WriteMessage(websocket.TextMessage, responseJson)
+	}
+	err = conn.WriteJSON(registerJson)
+	//err = conn.WriteMessage(websocket.TextMessage, responseJson)
 	if err != nil {
 		return
 	}
@@ -92,7 +93,7 @@ func WsHandler(c *gin.Context) {
 		}
 	}
 
-	model.DelConn(connID)
+	model.DelUser(connID)
 }
 
 // WsListHandler WS连接列表

@@ -1,18 +1,28 @@
-import StarSky from '@/components/StarSky'
 import { lazy } from 'react'
-import { createBrowserRouter, RouteObject, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Navigate, RouteObject, RouterProvider } from 'react-router-dom'
 
-const Solo = lazy(() => import('@/pages/Solo'))
+const Layout = lazy(() => import('@/pages/Layout'))
+const Home = lazy(() => import('@/pages/Home'))
+const Room = lazy(() => import('@/pages/Room'))
 
 const routes: RouteObject[] = [
   {
     path: '/',
-    element: (
-      <>
-        <StarSky className="absolute bg-black -z-10" />
-        <Solo />
-      </>
-    )
+    element: <Layout />,
+    children: [
+      {
+        path: '/',
+        element: <Home />
+      },
+      {
+        path: '/room',
+        element: <Room />
+      }
+    ]
+  },
+  {
+    path: '*',
+    element: <Navigate to="/" replace={true} />
   }
 ]
 

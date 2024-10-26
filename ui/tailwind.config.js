@@ -60,6 +60,7 @@ export default {
     },
     boxShadow: {
       round: '4px 4px 8px var(--tw-shadow-color), -4px -4px 8px var(--tw-shadow-color)',
+      0: '0px 0px 0px var(--tw-shadow-color)',
       1: '2px 2px 4px var(--tw-shadow-color)',
       2: '4px 4px 8px var(--tw-shadow-color)'
     },
