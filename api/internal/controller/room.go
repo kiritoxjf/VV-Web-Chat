@@ -15,43 +15,56 @@ func CreateRoom(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "传参错误",
 		})
+		return
 	}
-	if model.CheckUser(json.ID) {
-		roomId := model.CreateRoom(json.ID)
+	if _, exist := model.UserManager.GetUser(json.ID); exist == true {
+		id := model.RoomManager.CreateRoom(json.ID)
+		user, _ := model.UserManager.GetUser(json.ID)
+		user.JoinRoom(id)
 		c.JSON(http.StatusOK, gin.H{
-			"id": roomId,
+			"id": id,
 		})
+		return
 	} else {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
 			"message": "非法用户",
 		})
+		return
 	}
 }
 
 // JoinRoom 加入房间
 func JoinRoom(c *gin.Context) {
 	var json struct {
-		ID   string `json:"id"`
-		Room string `json:"roomId"`
+		ID     string `json:"id"`
+		Name   string `json:"name"`
+		Avatar string `json:"avatar"`
+		Room   string `json:"roomId"`
 	}
 	if err := c.ShouldBind(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "传参错误",
 		})
+		return
 	}
-	if !model.CheckUser(json.ID) {
+	user, exist := model.UserManager.GetUser(json.ID)
+	if exist != true {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
 			"message": "非法用户",
 		})
 		return
 	}
-	if !model.CheckRoom(json.Room) {
+	room, exist := model.RoomManager.GetRoom(json.Room)
+	if exist != true {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
 			"message": "房间不存在",
 		})
 		return
 	}
-	model.UserJoin(json.ID, json.Room)
-	model.RoomJoin(json.ID, json.Room)
+
+	if err := room.JoinMember(json.ID); err != nil {
+		return
+	}
+	user.JoinRoom(json.Room)
 	c.JSON(http.StatusOK, gin.H{})
 }

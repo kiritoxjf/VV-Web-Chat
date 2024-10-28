@@ -15,7 +15,6 @@ const Bubble = ({ child, bubbleColor = '#fff' }: iProps) => {
   }, [count])
 
   useEffect(() => {
-    console.log(1)
     if (childRef.current) {
       const { width, height } = childRef.current.getBoundingClientRect()
 

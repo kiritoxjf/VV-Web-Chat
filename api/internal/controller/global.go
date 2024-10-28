@@ -8,8 +8,8 @@ import (
 
 // List 获取统计数据
 func List(c *gin.Context) {
-	users := model.ListUser()
-	rooms := model.ListRoom()
+	users := model.UserManager.ListUser()
+	rooms := model.RoomManager.ListRoom()
 	c.JSON(http.StatusOK, gin.H{
 		"user":  users,
 		"room":  rooms,
@@ -17,9 +17,10 @@ func List(c *gin.Context) {
 	})
 }
 
+// Room 获取房间信息
 func Room(c *gin.Context) {
 	roomId := c.Query("roomId")
-	room, exist := model.RoomInfo(roomId)
+	room, exist := model.RoomManager.GetRoom(roomId)
 	if exist {
 		c.JSON(http.StatusOK, gin.H{
 			"id":      roomId,

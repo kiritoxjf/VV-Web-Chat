@@ -2,57 +2,96 @@ package model
 
 import (
 	"github.com/gorilla/websocket"
-	"sort"
+	"kiritoxjf/vv_chat/pkg"
+	"sync"
 )
 
 // iUser 用户
 type iUser struct {
 	ws     *websocket.Conn
 	roomId string
+	ip     string
+	mutex  sync.Mutex
 }
 
-// user 用户表
-var user = make(map[string]iUser)
+// iUserManager 用户管理器
+type iUserManager struct {
+	users map[string]*iUser
+	mutex sync.Mutex
+}
+
+// UserManager 管理器
+var UserManager = &iUserManager{
+	users: make(map[string]*iUser),
+}
 
 // AddUser 添加用户
-func AddUser(id string, ip string, ws *websocket.Conn) {
-	mutex.Lock()
-	defer mutex.Unlock()
-	user[id] = iUser{
+func (m *iUserManager) AddUser(id string, ip string, ws *websocket.Conn) *iUser {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	m.users[id] = &iUser{
 		ws:     ws,
+		ip:     ip,
 		roomId: "",
 	}
+	return m.users[id]
 }
 
-// CheckUser 检查用户
-func CheckUser(id string) bool {
-	_, ok := user[id]
-	return ok
+// GetUser 获取用户
+func (m *iUserManager) GetUser(id string) (*iUser, bool) {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	user, exist := m.users[id]
+	return user, exist
 }
 
-// UserJoin 加入房间
-func UserJoin(id string, roomId string) {
-	mutex.Lock()
-	defer mutex.Unlock()
-	u := user[id]
+// JoinRoom 加入房间
+func (u *iUser) JoinRoom(roomId string) {
+	u.mutex.Lock()
+	defer u.mutex.Unlock()
 	u.roomId = roomId
-	user[id] = u
+}
+
+// SafeWriteJson 互斥写入
+func (u *iUser) SafeWriteJson(msg interface{}) error {
+	u.mutex.Lock()
+	defer u.mutex.Unlock()
+	conn := u.ws
+	err := conn.WriteJSON(msg)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // DelUser 删除用户
-func DelUser(id string) {
-	mutex.Lock()
-	defer mutex.Unlock()
-	delete(user, id)
+func (m *iUserManager) DelUser(id string) {
+	if m.users[id].roomId != "" {
+		leaveJson := map[string]string{
+			"key":  "leave",
+			"id":   id,
+			"code": pkg.StatusOK,
+		}
+		room, _ := RoomManager.GetRoom(m.users[id].roomId)
+		for _, member := range room.Members {
+			if member != id {
+				u := m.users[member]
+				if err := u.SafeWriteJson(leaveJson); err != nil {
+				}
+			}
+		}
+		room.DelMember(id)
+	}
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	delete(m.users, id)
 }
 
 // ListUser 获取用户列表
-func ListUser() []string {
+func (m *iUserManager) ListUser() []string {
 	var ids []string
-
-	for id := range user {
-		ids = append(ids, id)
+	for u := range m.users {
+		ids = append(ids, u)
 	}
-	sort.Strings(ids)
 	return ids
 }

@@ -12,16 +12,14 @@ import { useForm } from 'react-hook-form'
 
 const Layout = () => {
   const ws = useBaseStore((state) => state.ws)
-  const name = useBaseStore((state) => state.name)
-  const avatar = useBaseStore((state) => state.avatar)
   const devices = useBaseStore((state) => state.devices)
-  const activeDevice = useBaseStore((state) => state.activeDevice)
   const updateWebSocket = useBaseStore((state) => state.updateWebsocket)
   const updateName = useBaseStore((state) => state.updateName)
   const updateAvatar = useBaseStore((state) => state.updateAvatar)
   const updateDevices = useBaseStore((state) => state.updateDevices)
-  const updateActiveDevice = useBaseStore((state) => state.updateActiveDevice)
+  const updateStream = useBaseStore((state) => state.updateStream)
 
+  const [active, setActive] = useState<string>('')
   const [isInfoModel, setIsInfoModel] = useState(false)
   const [isSystemModel, setIsSystemModel] = useState(false)
   const [globalError, setGlobalError] = useState('')
@@ -42,7 +40,7 @@ const Layout = () => {
               return { deviceId, groupId, kind, label }
             })
           updateDevices(inputs)
-          updateActiveDevice(inputs[0])
+          setActive(inputs[0].deviceId)
         })
       })
       .catch((err) => {
@@ -88,7 +86,7 @@ const Layout = () => {
     const localAvatar = localStorage.getItem('avatar')
     if (localName) {
       updateName(localName)
-      updateAvatar(localAvatar ?? '')
+      updateAvatar(localAvatar && localAvatar !== 'undefined' ? localAvatar : '')
     } else {
       setIsInfoModel(true)
     }
@@ -117,6 +115,15 @@ const Layout = () => {
       ws.close()
     }
   }
+
+  // 更新输入流
+  useEffect(() => {
+    if (active) {
+      navigator.mediaDevices.getUserMedia({ audio: { deviceId: active } }).then((stream) => {
+        updateStream(stream)
+      })
+    }
+  }, [active])
 
   useEffect(() => {
     Promise.all([checkRTC(), checkAudio()]).then(() => {
@@ -148,10 +155,10 @@ const Layout = () => {
           <>
             {devices.map((d) => (
               <div
-                className={`my-1 py-1 font-own cursor-pointer rounded ${activeDevice === d ? 'text-green-600' : ''} hover:bg-gray-200`}
+                className={`my-1 py-1 font-own cursor-pointer rounded ${active === d.deviceId ? 'text-green-600' : ''} hover:bg-gray-200`}
                 key={d.deviceId}
                 onClick={() => {
-                  updateActiveDevice(d)
+                  setActive(d.deviceId)
                 }}
               >
                 {d.label.substring(0, 20)}
@@ -226,7 +233,6 @@ const Layout = () => {
                   <Form.Item name="name" label="昵称" required>
                     <Input
                       {...infoForm.register('name')}
-                      defaultValue={name}
                       style={{
                         background: 'transparent',
                         color: 'white',
@@ -238,7 +244,6 @@ const Layout = () => {
                   <Form.Item name="avatar" label="头像">
                     <Input
                       {...infoForm.register('avatar')}
-                      defaultValue={avatar}
                       style={{
                         background: 'transparent',
                         color: 'white',

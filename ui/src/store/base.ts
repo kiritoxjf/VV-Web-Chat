@@ -14,7 +14,7 @@ type State = {
   room: string
   ws: WebSocket | null
   devices: iDevice[]
-  activeDevice: iDevice | null
+  stream: MediaStream | null
 }
 
 type Action = {
@@ -24,7 +24,7 @@ type Action = {
   updateRoom: (room: State['room']) => void
   updateWebsocket: (websocket: State['ws']) => void
   updateDevices: (devices: State['devices']) => void
-  updateActiveDevice: (device: State['activeDevice']) => void
+  updateStream: (stream: State['stream']) => void
 }
 
 export const useBaseStore = create<State & Action>((update) => {
@@ -35,13 +35,13 @@ export const useBaseStore = create<State & Action>((update) => {
     room: '',
     ws: null,
     devices: [],
-    activeDevice: null,
+    stream: null,
     updateWebsocket: (ws) => update(() => ({ ws: ws })),
     updateName: (name) => update(() => ({ name: name })),
     updateAvatar: (avatar) => update(() => ({ avatar: avatar })),
     updateId: (id) => update(() => ({ id: id })),
     updateRoom: (room) => update(() => ({ room: room })),
     updateDevices: (devices) => update(() => ({ devices: devices })),
-    updateActiveDevice: (device) => update(() => ({ activeDevice: device })),
+    updateStream: (stream) => update(() => ({ stream: stream }))
   }
 })
