@@ -39,8 +39,6 @@ func (m *iUserManager) AddUser(id string, ip string, ws *websocket.Conn) *iUser 
 
 // GetUser 获取用户
 func (m *iUserManager) GetUser(id string) (*iUser, bool) {
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
 	user, exist := m.users[id]
 	return user, exist
 }
@@ -73,12 +71,8 @@ func (m *iUserManager) DelUser(id string) {
 			"code": pkg.StatusOK,
 		}
 		room, _ := RoomManager.GetRoom(m.users[id].roomId)
-		for _, member := range room.Members {
-			if member != id {
-				u := m.users[member]
-				if err := u.SafeWriteJson(leaveJson); err != nil {
-				}
-			}
+		if err := room.BroadCast(id, leaveJson); err != nil {
+			println(err.Error())
 		}
 		room.DelMember(id)
 	}

@@ -2,3 +2,5 @@
 .idea
 .docker_temp*
 vv-chat.tar
+
+*/buildStats.html

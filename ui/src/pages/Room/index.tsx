@@ -59,7 +59,8 @@ const Room = () => {
       audioElement.controls = true // 可选：显示控制条
     }
 
-    memberRef.current = [...memberRef.current, user].sort((a, b) => (a.id > b.id ? 1 : -1))
+    // memberRef.current = [...memberRef.current, user].sort((a, b) => (a.id > b.id ? 1 : -1))
+    memberRef.current = [...memberRef.current, user]
     setMember(memberRef.current)
 
     // offer
@@ -79,7 +80,6 @@ const Room = () => {
         })
       }
     }
-
 
     const json = {
       source: localID,
@@ -122,9 +122,6 @@ const Room = () => {
       audioElement.controls = true // 可选：显示控制条
     }
 
-    memberRef.current = [...memberRef.current, user].sort((a, b) => (a.id > b.id ? 1 : -1))
-    setMember(memberRef.current)
-
     const o = new RTCSessionDescription(JSON.parse(data.offer))
     await user.peer.setRemoteDescription(o)
 
@@ -153,6 +150,9 @@ const Room = () => {
     post('/api/answer', json).catch((e) => {
       message.error(e)
     })
+
+    memberRef.current = [...memberRef.current, user]
+    setMember(memberRef.current)
   }
 
   // 接收Answer
@@ -182,7 +182,7 @@ const Room = () => {
   // 接收ICE
   const acceptICE = async (data: { id: string; candidate: string }) => {
     const m = memberRef.current.find((item) => item.id === data.id)
-    if(m) m.peer.addIceCandidate(new RTCIceCandidate(JSON.parse(data.candidate)))
+    if (m) m.peer.addIceCandidate(new RTCIceCandidate(JSON.parse(data.candidate)))
   }
 
   // 插入本地流

@@ -81,6 +81,9 @@ export default defineConfig({
         entryFileNames: 'js/[name]-[hash].js', //出口文件名位置
         assetFileNames: 'static/[ext]/[name]-[hash].[ext]', //静态文件名位置
         manualChunks(id) {
+          if (id.includes('axios')) {
+            return 'axios'
+          }
           if (id.includes('node_modules')) {
             return id.toString().split('node_modules/')[1].split('/')[0].toString()
           }

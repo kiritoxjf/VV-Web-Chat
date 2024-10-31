@@ -24,7 +24,6 @@ func Room(c *gin.Context) {
 	if exist {
 		c.JSON(http.StatusOK, gin.H{
 			"id":      roomId,
-			"owner":   room.Owner,
 			"members": room.Members,
 		})
 	} else {

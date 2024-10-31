@@ -8,7 +8,6 @@ import (
 // iRoom 房间
 type iRoom struct {
 	id      string
-	Owner   string
 	Members []string
 	mutex   sync.Mutex
 }
@@ -29,8 +28,7 @@ func (m *iRoomManager) CreateRoom(owner string) string {
 	m.mutex.Lock()
 	id := pkg.GenerateRandomString(5)
 	m.rooms[id] = &iRoom{
-		id:    id,
-		Owner: owner,
+		id: id,
 		Members: []string{
 			owner,
 		},
@@ -48,8 +46,6 @@ func (m *iRoomManager) DelRoom(id string) {
 
 // GetRoom 获取房间
 func (m *iRoomManager) GetRoom(id string) (*iRoom, bool) {
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
 	room, exist := m.rooms[id]
 	return room, exist
 }
@@ -86,96 +82,22 @@ func (r *iRoom) JoinMember(id string) error {
 		"id":   id,
 		"code": pkg.StatusOK,
 	}
-	if err := r.BroadCast(joinJson); err != nil {
+	if err := r.BroadCast(id, joinJson); err != nil {
 		return err
 	}
+	r.Members = append(r.Members, id)
 	return nil
 }
 
 // BroadCast 广播
-func (r *iRoom) BroadCast(msg interface{}) error {
+func (r *iRoom) BroadCast(id string, msg interface{}) error {
 	for _, member := range r.Members {
-		u, _ := UserManager.GetUser(member)
-		if err := u.SafeWriteJson(msg); err != nil {
-			return err
+		if member != id {
+			u, _ := UserManager.GetUser(member)
+			if err := u.SafeWriteJson(msg); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
 }
-
-//// room 房间表
-//var room = make(map[string]IRoom)
-//
-//// CreateRoom 创建房间
-//func CreateRoom(owner string) string {
-//	Mutex.Lock()
-//	defer Mutex.Unlock()
-//	roomId := pkg.GenerateRandomString(5)
-//	room[roomId] = IRoom{
-//		Owner:   owner,
-//		Members: []string{owner},
-//	}
-//	return roomId
-//}
-//
-//// CheckRoom 检查房间
-//func CheckRoom(id string) bool {
-//	_, ok := room[id]
-//	return ok
-//}
-//
-//// RoomJoin 加入房间
-//func RoomJoin(id string, roomId string) {
-//	Mutex.Lock()
-//	defer Mutex.Unlock()
-//	r := room[roomId]
-//	r.Members = append(r.Members, id)
-//	room[roomId] = r
-//}
-//
-//// RoomLeave 离开房间
-//func RoomLeave(id string, roomId string) {
-//	Mutex.Lock()
-//	defer Mutex.Unlock()
-//	r := room[roomId]
-//	for i, m := range r.Members {
-//		if m == id {
-//			r.Members = append(r.Members[:i], r.Members[i+1:]...)
-//			break
-//		}
-//	}
-//	room[roomId] = r
-//}
-//
-//// GetMember 获取房间成员
-//func GetMember(id string) []string {
-//	r := room[id]
-//	return r.Members
-//}
-//
-//// DelRoom 解散房间
-//func DelRoom(roomId string) {
-//	Mutex.Lock()
-//	defer Mutex.Unlock()
-//	delete(room, roomId)
-//}
-//
-//// ListRoom 获取房间列表
-//func ListRoom() []string {
-//	var ids []string
-//
-//	for id := range room {
-//		ids = append(ids, id)
-//	}
-//	sort.Strings(ids)
-//	return ids
-//}
-//
-//// RoomInfo 获取房间信息
-//func RoomInfo(id string) (IRoom, bool) {
-//	room, exist := room[id]
-//	if !exist {
-//		return IRoom{}, false
-//	}
-//	return room, true
-//}
