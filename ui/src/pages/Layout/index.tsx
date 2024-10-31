@@ -137,17 +137,17 @@ const Layout = () => {
   }, [])
 
   return (
-    <div className="relative w-full h-full bg-black/50 overflow-hidden">
+    <div className="relative w-full h-full bg-main-1/80 overflow-hidden">
       <StarSky className="absolute bg-black -z-10" />
       <div
-        className="absolute w-12 h-12 right-2 top-4 p-2 bg-gray-800 border-2 border-[#283593] rounded-full cursor-pointer hover:animate-breath
-            after:shadow-2 after:shadow-[#64b5f6] after:h-full after:w-full after:rounded-full after:absolute after:top-0 after:left-0"
+        className="absolute w-12 h-12 right-2 top-4 p-2 bg-gray-800 border-2 border-main-2 rounded-full cursor-pointer hover:animate-breath
+            after:shadow-2 after:shadow-main-3 after:h-full after:w-full after:rounded-full after:absolute after:top-0 after:left-0"
         title="个人信息"
         onClick={() => {
           setIsInfoModel(true)
         }}
       >
-        <MaskSvg className="w-full h-8 text-blue-400" />
+        <MaskSvg className="w-full h-8 text-main-3" />
       </div>
       <Popover
         placement="left"
@@ -168,22 +168,22 @@ const Layout = () => {
         }
       >
         <div
-          className="absolute w-12 h-12 right-2 top-20 p-2 bg-gray-800 border-2 border-[#283593] rounded-full cursor-pointer hover:animate-breath
-            after:shadow-2 after:shadow-[#64b5f6] after:h-full after:w-full after:rounded-full after:absolute after:top-0 after:left-0"
+          className="absolute w-12 h-12 right-2 top-20 p-2 bg-gray-800 border-2 border-main-2 rounded-full cursor-pointer hover:animate-breath
+            after:shadow-2 after:shadow-main-3 after:h-full after:w-full after:rounded-full after:absolute after:top-0 after:left-0"
           title="切换麦克风"
         >
-          <MicroPhoneSvg className="w-full text-blue-800" />
+          <MicroPhoneSvg className="w-full text-main-3" />
         </div>
       </Popover>
       <div
-        className="absolute w-12 h-12 right-2 top-36 p-2 bg-gray-800 border-2 border-[#283593] rounded-full cursor-pointer hover:animate-breath
-            after:shadow-2 after:shadow-[#64b5f6] after:h-full after:w-full after:rounded-full after:absolute after:top-0 after:left-0"
+        className="absolute w-12 h-12 right-2 top-36 p-2 bg-gray-800 border-2 border-main-2 rounded-full cursor-pointer hover:animate-breath
+            after:shadow-2 after:shadow-main-3 after:h-full after:w-full after:rounded-full after:absolute after:top-0 after:left-0"
         title="系统信息"
         onClick={() => {
           setIsSystemModel(true)
         }}
       >
-        <WarnSvg className="w-full h-8 text-blue-400" />
+        <WarnSvg className="w-full h-8 text-main-3" />
       </div>
       <Outlet />
       <ConfigProvider

@@ -5,6 +5,10 @@ export default {
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
     colors: {
+      'main-1': '#222831',
+      'main-2': '#393E46',
+      'main-3': '#00ADB5',
+      'main-4': '#EEEEEE',
       black: '#1f1f1f',
       white: '#f0f0f0',
       'blue-100': '#e6f7ff',
@@ -77,6 +81,8 @@ export default {
     extend: {
       animation: {
         breath: 'breath 2s ease-in-out infinite',
+        'hidden-show': 'hidden-show 0.5s ease-in-out',
+        'right-in': 'right-in 0.5s ease-in-out',
         'little-ping': 'little-ping 1s cubic-bezier(0, 0, 0.2, 1) infinite'
       },
       keyframes: {
@@ -88,6 +94,16 @@ export default {
         breath: {
           '0%, 100%': { transform: 'scale(1)' },
           '50%': { transform: 'scale(0.87)' }
+        },
+        'hidden-show': {
+          '0%': { scale: '0.3', opacity: '0' },
+          '50%': { scale: '0.6', opacity: '1' },
+          '100%': { scale: '1', opacity: '1' }
+        },
+        'right-in': {
+          '0%': { transform: 'translateX(100%)', opacity: '0' },
+          '50%': { transform: 'translateX(50%)', opacity: '1' },
+          '100%': { transform: 'translateX(0)', opacity: '1' }
         },
         'little-ping': {
           '40%': {

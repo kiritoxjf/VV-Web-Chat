@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { iMember } from './index.interface'
 import { post } from '@/scripts/axios'
 import { message } from 'antd'
+import MicroPhoneSvg from '@/assets/svg/microphone.svg?react'
 
 const Room = () => {
   const localID = useBaseStore((state) => state.id)
@@ -15,29 +16,58 @@ const Room = () => {
   const ws = useBaseStore((state) => state.ws)
   const stream = useBaseStore((state) => state.stream)
 
+  // 输入音量
+  const [inputVol, setInputVol] = useState<number>(0)
+  // 静音
+  const [mute, setMute] = useState<boolean>(false)
+
   const [member, setMember] = useState<iMember[]>([])
 
   const memberRef = useRef<iMember[]>([])
 
   const navigate = useNavigate()
 
-  // 获取音量
-  // const getMediaVol = (stream: MediaStream, key: string) => {
-  //   const atx = new AudioContext()
-  //   const analyser = atx.createAnalyser()
-  //   const source = atx.createMediaStreamSource(stream)
-  //   source.connect(analyser)
+  // 获取输入音量
+  const getLocalVol = () => {
+    if (stream) {
+      const atx = new AudioContext()
+      const analyser = atx.createAnalyser()
+      const source = atx.createMediaStreamSource(stream)
+      source.connect(analyser)
 
-  //   const dataArray = new Uint8Array(analyser.frequencyBinCount)
+      const dataArray = new Uint8Array(analyser.frequencyBinCount)
 
-  //   const setVal = () => {
-  //     analyser.getByteFrequencyData(dataArray)
-  //     const val = dataArray.reduce((a, b) => a + b, 0) / dataArray.length
-  //     key === 'input' ? setInputVol(Math.floor(val)) : setOutputVol(Math.floor(val))
-  //     requestAnimationFrame(setVal)
-  //   }
-  //   setVal()
-  // }
+      const setVal = () => {
+        analyser.getByteFrequencyData(dataArray)
+        const val = dataArray.reduce((a, b) => a + b, 0) / dataArray.length
+        setInputVol(Math.floor(val))
+        requestAnimationFrame(setVal)
+      }
+      setVal()
+    }
+  }
+
+  // 静音
+  const handleMute = () => {
+    console.log(stream)
+    if (mute) {
+      const tracks = stream?.getAudioTracks()
+      console.log(tracks)
+      if (tracks && tracks.length > 0) {
+        tracks[0].enabled = true
+      }
+      message.info('开麦')
+      setMute(false)
+    } else {
+      const tracks = stream?.getAudioTracks()
+      console.log(tracks)
+      if (tracks && tracks.length > 0) {
+        tracks[0].enabled = false
+      }
+      message.info('闭麦')
+      setMute(true)
+    }
+  }
 
   // 成员加入
   const join = async (id: string) => {
@@ -101,6 +131,7 @@ const Room = () => {
       memberRef.current = memberRef.current.filter((item) => item.id !== id)
       setMember(memberRef.current)
     }
+    message.info(`${user?.name}离开了房间`)
   }
 
   // 接受offer
@@ -177,6 +208,7 @@ const Room = () => {
     if (!user) return
     const answer = new RTCSessionDescription(JSON.parse(data.answer))
     await user.peer.setRemoteDescription(answer)
+    message.info(`${user.name}加入了房间`)
   }
 
   // 接收ICE
@@ -188,6 +220,7 @@ const Room = () => {
   // 插入本地流
   useEffect(() => {
     if (stream) {
+      getLocalVol()
       member.forEach((item) => {
         stream.getTracks().forEach((track) => item.peer.addTrack(track, stream))
       })
@@ -237,8 +270,8 @@ const Room = () => {
   }
 
   return (
-    <div className="flex justify-center items-center">
-      <div className="flex my-2 justify-center items-center gap-2 text-white">
+    <div className="flex flex-col justify-center items-center gap-8 text-main-3">
+      <div className="flex my-2 justify-center items-center gap-2">
         <div className="cursor-default">房间号：</div>
         <Colorful
           child={
@@ -251,10 +284,44 @@ const Room = () => {
           }
         ></Colorful>
       </div>
-      <div>
+      <div
+        className={`relative px-4 py-2 flex items-center gap-4 text-4xl bg-main-2 rounded-2xl overflow-hidden animate-hidden-show cursor-pointer border-2 ${mute ? 'border-red-700' : inputVol > 30 ? 'border-main-3' : 'border-main-3/0'}`}
+        onClick={handleMute}
+      >
+        <div>
+          <img
+            className="w-12 h-12 rounded-lg object-cover"
+            src={
+              avatar ||
+              'https://img0.pixhost.to/images/614/527153430_boy_smile_dog_1006791_240x320.jpg'
+            }
+            alt="头像"
+          />
+        </div>
+        <div className="max-w-48 overflow-hidden text-3xl text-nowrap">{name}</div>
+        {mute && (
+          <div className="absolute left-0 right-0 top-0 bottom-0 flex justify-center items-center bg-main-2/80">
+            <MicroPhoneSvg className="w-8 text-red-700" />
+          </div>
+        )}
+      </div>
+      <div className="flex flex-col gap-4">
         {member.map((item) => (
-          <div key={item.id} className="flex gap-2">
-            {item.name}
+          <div
+            key={item.id}
+            className="px-4 py-2 w-64 flex items-center gap-4 text-4xl bg-main-2 rounded-2xl animate-right-in"
+          >
+            <div>
+              <img
+                className="w-12 h-12 rounded-lg object-cover"
+                src={
+                  item.avatar ||
+                  'https://img0.pixhost.to/images/614/527153430_boy_smile_dog_1006791_240x320.jpg'
+                }
+                alt="头像"
+              />
+            </div>
+            <div className="max-w-48 overflow-hidden text-3xl text-nowrap">{item.name}</div>
           </div>
         ))}
       </div>

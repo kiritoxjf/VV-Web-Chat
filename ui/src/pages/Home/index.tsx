@@ -63,9 +63,9 @@ const Home = () => {
   }, [ws])
 
   return (
-    <div className="w-full h-full flex flex-col justify-center items-center gap-4 text-white">
+    <div className="w-full h-full flex flex-col justify-center items-center gap-4 text-main-3">
       {messageCtx}
-      <div className="flex items-center gap-4 text-4xl">
+      <div className="px-4 py-2 flex items-center gap-4 text-4xl bg-main-2 rounded-2xl animate-bounce">
         <div>
           <img
             className="w-12 h-12 rounded-lg object-cover"
@@ -76,11 +76,11 @@ const Home = () => {
             alt="头像"
           />
         </div>
-        <div>{name}</div>
+        <div className="max-w-48 overflow-hidden text-3xl text-nowrap">{name}</div>
       </div>
       <Input
         classNames={{
-          input: `w-60 border-x-0 border-t-0 border-solid border-2 ${roomId.length === 5 ? 'border-green-400' : 'border-gray-400'} rounded-none text-4xl text-center text-white font-own focus:border-e-0 hover:border-e-0 placeholder:text-white/30`
+          input: `w-60 border-x-0 border-t-0 border-solid border-2 ${roomId.length === 5 ? 'border-main-3' : 'border-main-2'} rounded-none text-4xl text-center text-main-3 font-own focus:border-e-0 hover:border-e-0 placeholder:text-white/30`
         }}
         variant="borderless"
         value={roomId}
@@ -94,13 +94,13 @@ const Home = () => {
       />
       <div className="flex phone:flex-col desktop:flex-row gap-8">
         <button
-          className={`phone:w-64 desktop:w-40 text-2xl px-4 py-2 bg-gray-800/70 border border-white rounded-lg shadow-2 shadow-white active:shadow-0 active:translate-x-2 active:translate-y-2`}
+          className={`phone:w-64 desktop:w-40 text-2xl px-4 py-2 bg-main-1/70 border border-main-2 rounded-lg shadow-2 shadow-main-3 active:shadow-0 active:translate-x-2 active:translate-y-2`}
           onClick={create}
         >
           创建房间
         </button>
         <button
-          className={`phone:w-64 desktop:w-40 text-2xl px-4 py-2 bg-gray-800/70 border border-white rounded-lg shadow-2 shadow-white active:shadow-0 active:translate-x-2 active:translate-y-2`}
+          className={`phone:w-64 desktop:w-40 text-2xl px-4 py-2 bg-main-1/70 border border-main-2 rounded-lg shadow-2 shadow-main-3 active:shadow-0 active:translate-x-2 active:translate-y-2`}
           onClick={join}
         >
           加入房间
