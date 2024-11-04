@@ -5,6 +5,7 @@ export default {
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
     colors: {
+      'transparent': 'transparent',
       'main-1': '#222831',
       'main-2': '#393E46',
       'main-3': '#00ADB5',

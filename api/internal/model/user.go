@@ -53,12 +53,12 @@ func (u *iUser) JoinRoom(roomId string) {
 // SafeWriteJson 互斥写入
 func (u *iUser) SafeWriteJson(msg interface{}) error {
 	u.mutex.Lock()
-	defer u.mutex.Unlock()
 	conn := u.ws
 	err := conn.WriteJSON(msg)
 	if err != nil {
 		return err
 	}
+	u.mutex.Unlock()
 	return nil
 }
 

@@ -26,6 +26,7 @@ const Room = () => {
   const memberRef = useRef<iMember[]>([])
 
   const navigate = useNavigate()
+  const [messageApi, contextHolder] = message.useMessage()
 
   // 获取输入音量
   const getLocalVol = () => {
@@ -56,7 +57,7 @@ const Room = () => {
       if (tracks && tracks.length > 0) {
         tracks[0].enabled = true
       }
-      message.info('开麦')
+      messageApi.info('开麦')
       setMute(false)
     } else {
       const tracks = stream?.getAudioTracks()
@@ -64,7 +65,7 @@ const Room = () => {
       if (tracks && tracks.length > 0) {
         tracks[0].enabled = false
       }
-      message.info('闭麦')
+      messageApi.info('闭麦')
       setMute(true)
     }
   }
@@ -119,7 +120,7 @@ const Room = () => {
       offer: JSON.stringify(offer)
     }
     post('/api/offer', json).catch((e) => {
-      message.error(e)
+      messageApi.error(e)
     })
   }
 
@@ -131,7 +132,7 @@ const Room = () => {
       memberRef.current = memberRef.current.filter((item) => item.id !== id)
       setMember(memberRef.current)
     }
-    message.info(`${user?.name}离开了房间`)
+    messageApi.info(`${user?.name}离开了房间`)
   }
 
   // 接受offer
@@ -167,7 +168,7 @@ const Room = () => {
           candidate: JSON.stringify(e.candidate)
         }
         post('/api/ice', json).catch((e) => {
-          message.error(e)
+          messageApi.error(e)
         })
       }
     }
@@ -179,7 +180,7 @@ const Room = () => {
       answer: JSON.stringify(answer)
     }
     post('/api/answer', json).catch((e) => {
-      message.error(e)
+      messageApi.error(e)
     })
 
     memberRef.current = [...memberRef.current, user]
@@ -208,7 +209,7 @@ const Room = () => {
     if (!user) return
     const answer = new RTCSessionDescription(JSON.parse(data.answer))
     await user.peer.setRemoteDescription(answer)
-    message.info(`${user.name}加入了房间`)
+    messageApi.info(`${user.name}加入了房间`)
   }
 
   // 接收ICE
@@ -271,6 +272,7 @@ const Room = () => {
 
   return (
     <div className="flex flex-col justify-center items-center gap-8 text-main-3">
+      {contextHolder}
       <div className="flex my-2 justify-center items-center gap-2">
         <div className="cursor-default">房间号：</div>
         <Colorful

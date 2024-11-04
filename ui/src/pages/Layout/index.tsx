@@ -1,6 +1,6 @@
 import StarSky from '@/components/StarSky'
 import { useBaseStore } from '@/store/base'
-import { Button, ConfigProvider, Form, Input, Modal, Popover } from 'antd'
+import { ConfigProvider, Form, Input, Modal, Popover } from 'antd'
 import { useEffect, useState } from 'react'
 import { iInfoForm } from './index.interface'
 import Toggle from '@/components/Toggle'
@@ -87,6 +87,8 @@ const Layout = () => {
     if (localName) {
       updateName(localName)
       updateAvatar(localAvatar && localAvatar !== 'undefined' ? localAvatar : '')
+      infoForm.setValue('name', localName)
+      infoForm.setValue('avatar', localAvatar && localAvatar !== 'undefined' ? localAvatar : '')
     } else {
       setIsInfoModel(true)
     }
@@ -151,11 +153,21 @@ const Layout = () => {
       </div>
       <Popover
         placement="left"
+        overlayInnerStyle={{
+          backgroundColor: 'transparent'
+        }}
+        overlayStyle={{
+          backgroundColor: 'rgba(255, 255, 255, 0.5)',
+          borderRadius: '1rem'
+        }}
         content={
           <>
             {devices.map((d) => (
               <div
-                className={`my-1 py-1 font-own cursor-pointer rounded ${active === d.deviceId ? 'text-green-600' : ''} hover:bg-gray-200`}
+                className={`my-1 py-1 font-own cursor-pointer rounded ${active === d.deviceId ? 'text-main-3' : 'text-main-2'}  hover:bg-gray-200`}
+                style={{
+                  textShadow: active === d.deviceId ? '0 0 4px #000' : ''
+                }}
                 key={d.deviceId}
                 onClick={() => {
                   setActive(d.deviceId)
@@ -222,7 +234,7 @@ const Layout = () => {
               <div
                 className="phone:w-64 desktop:w-80 p-5 flex flex-col justify-center rounded-2xl box-border border-2 border-white/0 shadow-2 shadow-blue-400/40"
                 style={{
-                  background: `linear-gradient(rgba(33, 33, 33), rgba(33, 33, 33)) padding-box, linear-gradient(145deg, transparent 35%,#5b247a, #1bcedf) border-box`
+                  background: `#222831 padding-box, linear-gradient(145deg, transparent 35%,#393E46, #00ADB5) border-box`
                 }}
               >
                 <Form
@@ -233,6 +245,7 @@ const Layout = () => {
                   <Form.Item name="name" label="昵称" required>
                     <Input
                       {...infoForm.register('name')}
+                      defaultValue={infoForm.getValues('name')}
                       style={{
                         background: 'transparent',
                         color: 'white',
@@ -244,6 +257,7 @@ const Layout = () => {
                   <Form.Item name="avatar" label="头像">
                     <Input
                       {...infoForm.register('avatar')}
+                      defaultValue={infoForm.getValues('avatar')}
                       style={{
                         background: 'transparent',
                         color: 'white',
@@ -253,32 +267,30 @@ const Layout = () => {
                     />
                   </Form.Item>
                   <Form.Item>
-                    <Button className="float-right bg-white/0 text-white" htmlType="submit">
+                    <button
+                      type="submit"
+                      className="float-right px-4 py-1 text-main-4 hover:text-main-3 border-2 border-main-4 hover:border-main-3 rounded-lg"
+                    >
                       确定
-                    </Button>
+                    </button>
                   </Form.Item>
                 </Form>
               </div>
             }
             rComponent={
-              <div
-                className={`flex place-content-center place-items-center gap-2 h-64 w-64 rounded-full bg-gradient-to-br from-red-400 to-blue-900 
-              before:absolute before:content-[''] before:w-full before:h-full before:rounded-full before:shadow-1`}
-              >
-                <div className="h-full w-full relative flex flex-col justify-center items-center rounded-full overflow-hidden">
-                  <div className="absolute flex flex-col justify-center items-center gap-4">
-                    <img
-                      className="w-32 h-32 rounded-full object-cover"
-                      src={
-                        infoForm.watch('avatar') ||
-                        'https://images.wallpaperscraft.com/image/single/boy_smile_dog_1006791_240x320.jpg'
-                      }
-                      alt="头像"
-                    />
-                    <span className="-mt-4 text-4xl text-white cursor-default">
-                      {infoForm.watch('name') || ''}
-                    </span>
-                  </div>
+              <div className="px-4 py-2 flex items-center gap-4 text-4xl bg-main-2 rounded-2xl text-main-3">
+                <div>
+                  <img
+                    className="w-12 h-12 rounded-lg object-cover"
+                    src={
+                      infoForm.watch('avatar') ||
+                      'https://img0.pixhost.to/images/614/527153430_boy_smile_dog_1006791_240x320.jpg'
+                    }
+                    alt="头像"
+                  />
+                </div>
+                <div className="max-w-48 overflow-hidden text-3xl text-nowrap">
+                  {infoForm.watch('name')}
                 </div>
               </div>
             }
@@ -297,9 +309,9 @@ const Layout = () => {
           onCancel={() => setIsSystemModel(false)}
         >
           <div
-            className="phone:w-64 desktop:w-80 p-5 flex flex-col justify-center text-white/60 rounded-2xl box-border border-2 border-white/0 shadow-2 shadow-blue-400/40"
+            className="phone:w-64 desktop:w-80 p-5 flex flex-col justify-center text-base text-white/60 rounded-2xl box-border border-2 border-white/0 shadow-2 shadow-blue-400/40"
             style={{
-              background: `linear-gradient(rgba(33, 33, 33), rgba(33, 33, 33)) padding-box, linear-gradient(145deg, transparent 35%,#5b247a, #1bcedf) border-box`
+              background: `#222831 padding-box, linear-gradient(145deg, transparent 35%,#393E46, #00ADB5) border-box`
             }}
           >
             <p className="text-center text-2xl text-white mb-2">VV语音</p>
