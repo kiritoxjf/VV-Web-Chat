@@ -14,7 +14,8 @@
 ```
 docker run -d -p 80:80 --name <CONTAINER_NAME> kiritoxjf/vv-chat
 ```
-<h2>v2.*<span style="color: yellow">（开发中）</span></h2>
+<h2>v2.*<span style="color: yellow">（等待新想法ing）</span></h2>
+<h2>v2.0<span style="color: green">（已完成）</span></h2>
 <p>多人房间通话</p>
 <h2>v1.*<span style="color: green">（已完成）</span></h2>
 <p>UI优化</p>
