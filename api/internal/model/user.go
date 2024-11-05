@@ -50,6 +50,13 @@ func (u *iUser) JoinRoom(roomId string) {
 	u.roomId = roomId
 }
 
+// LeaveRoom 离开房间
+func (u *iUser) LeaveRoom() {
+	u.mutex.Lock()
+	defer u.mutex.Unlock()
+	u.roomId = ""
+}
+
 // SafeWriteJson 互斥写入
 func (u *iUser) SafeWriteJson(msg interface{}) error {
 	u.mutex.Lock()

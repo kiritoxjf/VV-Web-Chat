@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"kiritoxjf/vv_chat/internal/model"
+	"kiritoxjf/vv_chat/pkg"
 	"net/http"
 )
 
@@ -66,5 +67,36 @@ func JoinRoom(c *gin.Context) {
 		return
 	}
 	user.JoinRoom(json.Room)
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+// LeaveRoom 离开房间
+func LeaveRoom(c *gin.Context) {
+	id := c.Query("id")
+	roomId := c.Query("room")
+	user, exist := model.UserManager.GetUser(id)
+	if !exist {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"message": "非法用户",
+		})
+		return
+	}
+	user.LeaveRoom()
+	room, exist := model.RoomManager.GetRoom(roomId)
+	if !exist {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"message": "房间不存在",
+		})
+		return
+	}
+	leaveJson := map[string]string{
+		"key":  "leave",
+		"id":   id,
+		"code": pkg.StatusOK,
+	}
+	if err := room.BroadCast(id, leaveJson); err != nil {
+		println(err.Error())
+	}
+	room.DelMember(id)
 	c.JSON(http.StatusOK, gin.H{})
 }

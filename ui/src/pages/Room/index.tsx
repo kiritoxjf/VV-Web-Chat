@@ -4,9 +4,10 @@ import { createClickText } from '@/scripts/click_text'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { iMember } from './index.interface'
-import { post } from '@/scripts/axios'
+import { del, post } from '@/scripts/axios'
 import { message } from 'antd'
 import MicroPhoneSvg from '@/assets/svg/microphone.svg?react'
+import LeaveSvg from '@/assets/svg/leave.svg?react'
 
 const Room = () => {
   const localID = useBaseStore((state) => state.id)
@@ -15,6 +16,7 @@ const Room = () => {
   const room = useBaseStore((state) => state.room)
   const ws = useBaseStore((state) => state.ws)
   const stream = useBaseStore((state) => state.stream)
+  const updateRoom = useBaseStore((state) => state.updateRoom)
 
   // 输入音量
   const [inputVol, setInputVol] = useState<number>(0)
@@ -70,8 +72,20 @@ const Room = () => {
     }
   }
 
+  // 离开房间
+  const leave = () => {
+    del('/api/room', { id: localID, room: room })
+      .then(() => {
+        updateRoom('')
+        navigate('/')
+      })
+      .catch((e) => {
+        messageApi.error(e)
+      })
+  }
+
   // 成员加入
-  const join = async (id: string) => {
+  const otherJoin = async (id: string) => {
     const user: iMember = {
       id,
       name: '',
@@ -125,7 +139,7 @@ const Room = () => {
   }
 
   // 成员离开
-  const leave = (id: string) => {
+  const otherLeave = (id: string) => {
     const user = memberRef.current.find((item) => item.id === id)
     if (user) {
       user.peer.close()
@@ -239,7 +253,7 @@ const Room = () => {
         const json = JSON.parse(e.data)
         switch (json.key) {
           case 'join':
-            join(json.id)
+            otherJoin(json.id)
             break
           case 'offer':
             acceptOffer(json)
@@ -251,7 +265,7 @@ const Room = () => {
             acceptICE(json)
             break
           case 'leave':
-            leave(json.id)
+            otherLeave(json.id)
             break
         }
       }
@@ -286,26 +300,33 @@ const Room = () => {
           }
         ></Colorful>
       </div>
-      <div
-        className={`relative px-4 py-2 flex items-center gap-4 text-4xl bg-main-2 rounded-2xl overflow-hidden animate-hidden-show cursor-pointer border-2 ${mute ? 'border-red-700' : inputVol > 30 ? 'border-main-3' : 'border-main-3/0'}`}
-        onClick={handleMute}
-      >
-        <div>
-          <img
-            className="w-12 h-12 rounded-lg object-cover"
-            src={
-              avatar ||
-              'https://img0.pixhost.to/images/614/527153430_boy_smile_dog_1006791_240x320.jpg'
-            }
-            alt="头像"
-          />
-        </div>
-        <div className="max-w-48 overflow-hidden text-3xl text-nowrap">{name}</div>
-        {mute && (
-          <div className="absolute left-0 right-0 top-0 bottom-0 flex justify-center items-center bg-main-2/80">
-            <MicroPhoneSvg className="w-8 text-red-700" />
+      <div className="flex justify-center items-center gap-2">
+        <div
+          className={`relative px-4 py-2 flex items-center gap-4 text-4xl bg-main-2 rounded-2xl overflow-hidden animate-hidden-show cursor-pointer border-2 ${mute ? 'border-red-700' : inputVol > 30 ? 'border-main-3' : 'border-main-3/0'}`}
+          onClick={handleMute}
+        >
+          <div>
+            <img
+              className="w-12 h-12 rounded-lg object-cover"
+              src={
+                avatar ||
+                'https://img0.pixhost.to/images/614/527153430_boy_smile_dog_1006791_240x320.jpg'
+              }
+              alt="头像"
+            />
           </div>
-        )}
+          <div className="max-w-48 overflow-hidden text-3xl text-nowrap">{name}</div>
+          {mute && (
+            <div className="absolute left-0 right-0 top-0 bottom-0 flex justify-center items-center bg-main-2/80">
+              <MicroPhoneSvg className="w-8 text-red-700" />
+            </div>
+          )}
+        </div>
+        <LeaveSvg
+          className="w-6 h-6 text-red-600 cursor-pointer"
+          title="退出房间"
+          onClick={leave}
+        />
       </div>
       <div className="flex flex-col gap-4">
         {member.map((item) => (

@@ -1,4 +1,4 @@
-import { post } from '@/scripts/axios'
+import { post, put } from '@/scripts/axios'
 import { useBaseStore } from '@/store/base'
 import { Input, message } from 'antd'
 import { useEffect, useState } from 'react'
@@ -22,7 +22,7 @@ const Home = () => {
     const json = {
       id: id
     }
-    post<{ id: string }>('/api/room/create', json)
+    post<{ id: string }>('/api/room', json)
       .then((res) => {
         updateRoom(res.id)
         navigate('/room')
@@ -40,7 +40,7 @@ const Home = () => {
       avatar: avatar,
       roomId: roomId
     }
-    post('/api/room/join', json)
+    put('/api/room', json)
       .then(() => {
         updateRoom(roomId)
         navigate('/room')
