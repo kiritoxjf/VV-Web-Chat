@@ -2,6 +2,7 @@ import { post, put } from '@/scripts/axios'
 import { useBaseStore } from '@/store/base'
 import { Input, message } from 'antd'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 const Home = () => {
@@ -15,6 +16,7 @@ const Home = () => {
   const [roomId, setRoomId] = useState('')
 
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [messageApi, messageCtx] = message.useMessage()
 
   // 创建房间
@@ -63,7 +65,7 @@ const Home = () => {
   }, [ws])
 
   return (
-    <div className="w-full h-full flex flex-col justify-center items-center gap-4 text-main-3">
+    <div className="flex-1 flex flex-col justify-center items-center gap-4 text-main-3">
       {messageCtx}
       <div className="px-4 py-2 flex items-center gap-4 text-4xl bg-main-2 rounded-2xl animate-bounce">
         <div>
@@ -73,7 +75,7 @@ const Home = () => {
               avatar ||
               'https://img0.pixhost.to/images/614/527153430_boy_smile_dog_1006791_240x320.jpg'
             }
-            alt="头像"
+            alt={t('avatar')}
           />
         </div>
         <div className="max-w-48 overflow-hidden text-3xl text-nowrap">{name}</div>
@@ -84,7 +86,7 @@ const Home = () => {
         }}
         variant="borderless"
         value={roomId}
-        placeholder="房间号"
+        placeholder={t('roomNum')}
         onChange={(e) => {
           setRoomId(e.target.value)
         }}
@@ -97,13 +99,13 @@ const Home = () => {
           className={`phone:w-64 desktop:w-40 text-2xl px-4 py-2 bg-main-1/70 border border-main-2 rounded-lg shadow-2 shadow-main-3 active:shadow-0 active:translate-x-2 active:translate-y-2`}
           onClick={create}
         >
-          创建房间
+          {t('create')}
         </button>
         <button
           className={`phone:w-64 desktop:w-40 text-2xl px-4 py-2 bg-main-1/70 border border-main-2 rounded-lg shadow-2 shadow-main-3 active:shadow-0 active:translate-x-2 active:translate-y-2`}
           onClick={join}
         >
-          加入房间
+          {t('join')}
         </button>
       </div>
     </div>

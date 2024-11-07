@@ -1,0 +1,23 @@
+{
+  "title": "VV Voice",
+  "infoTag": "Info",
+  "previewTag": "Prev",
+  "submit": "Submit",
+  "nickname": "Nickname",
+  "avatar": "Avatar",
+  "desc1": "-Based on WebRTC open source Web side voice chat system",
+  "desc2": "-Support multi-person room voice",
+  "desc3": "-Completely open source and free",
+  "desc4": "-Simple deployment and easy operation",
+  "roomNum": "Room Numb",
+  "create": "Create Room",
+  "join": "Join Room",
+  "leave": "Leave Room",
+  "muteMsg": "Mute",
+  "unmuteMsg": "Unmute",
+  "leaveMsg": "Leave Room",
+  "joinMsg": "Join Room",
+  "clickToCopy": "Click to Copy",
+  "copySuccess": "Copy Success",
+  "notSupportClickToCopy": "Not Support Click to Copy"
+}

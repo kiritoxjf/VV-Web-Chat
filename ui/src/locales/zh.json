@@ -1,0 +1,23 @@
+{
+  "title": "VV 语音",
+  "infoTag": "信息",
+  "previewTag": "预览",
+  "submit": "提交",
+  "nickname": "昵称",
+  "avatar": "头像",
+  "desc1": "·基于WebRTC的开源Web端语音聊天系统",
+  "desc2": "·支持多人房间语音",
+  "desc3": "·完全开源免费",
+  "desc4": "·简单部署，操作方便",
+  "roomNum": "房间号",
+  "create": "创建房间",
+  "join": "加入房间",
+  "leave": "离开房间",
+  "muteMsg": "闭麦",
+  "unmuteMsg": "开麦",
+  "leaveMsg": "离开了房间",
+  "joinMsg": "加入了房间",
+  "clickToCopy": "点击复制",
+  "copySuccess": "复制成功",
+  "notSupportClickToCopy": "当前浏览器不支持点击复制"
+}

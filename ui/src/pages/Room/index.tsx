@@ -8,6 +8,7 @@ import { del, post } from '@/scripts/axios'
 import { message } from 'antd'
 import MicroPhoneSvg from '@/assets/svg/microphone.svg?react'
 import LeaveSvg from '@/assets/svg/leave.svg?react'
+import { useTranslation } from 'react-i18next'
 
 const Room = () => {
   const localID = useBaseStore((state) => state.id)
@@ -28,6 +29,7 @@ const Room = () => {
   const memberRef = useRef<iMember[]>([])
 
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [messageApi, contextHolder] = message.useMessage()
 
   // 获取输入音量
@@ -52,14 +54,13 @@ const Room = () => {
 
   // 静音
   const handleMute = () => {
-    console.log(stream)
     if (mute) {
       const tracks = stream?.getAudioTracks()
       console.log(tracks)
       if (tracks && tracks.length > 0) {
         tracks[0].enabled = true
       }
-      messageApi.info('开麦')
+      messageApi.info(t('unmuteMsg'))
       setMute(false)
     } else {
       const tracks = stream?.getAudioTracks()
@@ -67,7 +68,7 @@ const Room = () => {
       if (tracks && tracks.length > 0) {
         tracks[0].enabled = false
       }
-      messageApi.info('闭麦')
+      messageApi.info(t('muteMsg'))
       setMute(true)
     }
   }
@@ -120,9 +121,7 @@ const Room = () => {
           target: id,
           candidate: JSON.stringify(e.candidate)
         }
-        post('/api/ice', json).catch((e) => {
-          console.log(e)
-        })
+        post('/api/ice', json)
       }
     }
 
@@ -146,7 +145,7 @@ const Room = () => {
       memberRef.current = memberRef.current.filter((item) => item.id !== id)
       setMember(memberRef.current)
     }
-    messageApi.info(`${user?.name}离开了房间`)
+    messageApi.info(`${user?.name} ${t('leaveMsg')}`)
   }
 
   // 接受offer
@@ -223,7 +222,7 @@ const Room = () => {
     if (!user) return
     const answer = new RTCSessionDescription(JSON.parse(data.answer))
     await user.peer.setRemoteDescription(answer)
-    messageApi.info(`${user.name}加入了房间`)
+    messageApi.info(`${user.name} ${t('joinMsg')}`)
   }
 
   // 接收ICE
@@ -277,32 +276,32 @@ const Room = () => {
     navigator.clipboard
       .writeText(room)
       .then(() => {
-        createClickText(event.pageX, event.pageY, '复制成功')
+        createClickText(event.pageX, event.pageY, t('copySuccess'))
       })
       .catch(() => {
-        createClickText(event.pageX, event.pageY, '浏览器不支持点击复制')
+        createClickText(event.pageX, event.pageY, t('notSupportClickToCopy'))
       })
   }
 
   return (
-    <div className="flex flex-col justify-center items-center gap-8 text-main-3">
+    <div className="h-full w-full flex flex-col justify-center items-center gap-8 text-main-3">
       {contextHolder}
       <div className="flex my-2 justify-center items-center gap-2">
-        <div className="cursor-default">房间号：</div>
+        <div className="cursor-default">{t('roomNum')}</div>
         <Colorful
           child={
             <div className="group relative cursor-pointer" onClick={handleClickCopy}>
               <div className="relative text-4xl group-hover:opacity-10">{room}</div>
               <div className="absolute inset-0 items-center justify-center hidden group-hover:flex">
-                点击复制
+                {t('clickToCopy')}
               </div>
             </div>
           }
         ></Colorful>
       </div>
-      <div className="flex justify-center items-center gap-2">
+      <div className="flex justify-center items-center gap-2 animate-hidden-show">
         <div
-          className={`relative px-4 py-2 flex items-center gap-4 text-4xl bg-main-2 rounded-2xl overflow-hidden animate-hidden-show cursor-pointer border-2 ${mute ? 'border-red-700' : inputVol > 30 ? 'border-main-3' : 'border-main-3/0'}`}
+          className={`relative px-4 py-2 flex items-center gap-4 text-4xl bg-main-2 rounded-2xl overflow-hidden cursor-pointer border-2 ${mute ? 'border-red-700' : inputVol > 30 ? 'border-main-3' : 'border-main-3/0'}`}
           onClick={handleMute}
         >
           <div>
@@ -312,7 +311,7 @@ const Room = () => {
                 avatar ||
                 'https://img0.pixhost.to/images/614/527153430_boy_smile_dog_1006791_240x320.jpg'
               }
-              alt="头像"
+              alt={t('avatar')}
             />
           </div>
           <div className="max-w-48 overflow-hidden text-3xl text-nowrap">{name}</div>
@@ -322,13 +321,11 @@ const Room = () => {
             </div>
           )}
         </div>
-        <LeaveSvg
-          className="w-6 h-6 text-red-600 cursor-pointer"
-          title="退出房间"
-          onClick={leave}
-        />
+        <span title={t('leave')}>
+          <LeaveSvg className="w-6 h-6 text-red-600 cursor-pointer" onClick={leave} />
+        </span>
       </div>
-      <div className="flex flex-col gap-4">
+      <div className="px-4 mb-8 flex flex-col flex-grow gap-4 overflow-y-auto">
         {member.map((item) => (
           <div
             key={item.id}
@@ -341,7 +338,7 @@ const Room = () => {
                   item.avatar ||
                   'https://img0.pixhost.to/images/614/527153430_boy_smile_dog_1006791_240x320.jpg'
                 }
-                alt="头像"
+                alt={t('avatar')}
               />
             </div>
             <div className="max-w-48 overflow-hidden text-3xl text-nowrap">{item.name}</div>

@@ -77,7 +77,7 @@ export default {
       // => @media (min-width: 768px) { ... }
     },
     fontFamily: {
-      own: ['Gap', 'YeZiGongChangXiaoShiTou']
+      own: ['en-font', 'zh-font']
     },
     extend: {
       animation: {

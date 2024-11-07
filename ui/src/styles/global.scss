@@ -1,11 +1,47 @@
 @import './effect.scss';
 
 @font-face {
-  font-family: 'Gap';
-  src: url('@/assets/fonts/Gap-Regular-3.ttf') format('truetype');
+  font-family: 'en-font';
+  src: url('@/assets/fonts/en-font.otf') format('truetype');
 }
 
 @font-face {
-  font-family: 'YeZiGongChangXiaoShiTou';
-  src: url('@/assets/fonts/YeZiGongChangXiaoShiTou-2.ttf') format('truetype');
+  font-family: 'zh-font';
+  src: url('@/assets/fonts/zh-font.ttf') format('truetype');
+}
+
+/* 修改滚动条整体 */
+::-webkit-scrollbar {
+  width: 8px; /* 垂直滚动条宽度 */
+  height: 8px; /* 水平滚动条高度 */
+}
+
+/* 滚动条轨道样式 */
+::-webkit-scrollbar-track {
+  background: transparent; /* 滚动条轨道背景色 */
+}
+
+/* 滚动条滑块样式 */
+::-webkit-scrollbar-thumb {
+  background: rgba(222, 222, 222, 0.3); /* 滚动条滑块的颜色 */
+  border-radius: 10px;
+  border: 2px solid rgba(222, 222, 222, 0.8); /* 滑块与轨道之间的边距 */
+}
+
+/* 滚动条滑块的悬停状态 */
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(222, 222, 222, 0.6); /* 悬停时的颜色 */
+}
+
+/* 水平滚动条轨道和滑块样式 */
+::-webkit-scrollbar-horizontal {
+  height: 8px;
+}
+
+::-webkit-scrollbar-track-horizontal {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb-horizontal {
+  background: #888;
 }

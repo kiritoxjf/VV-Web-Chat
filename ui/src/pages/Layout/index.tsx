@@ -9,6 +9,8 @@ import MicroPhoneSvg from '@/assets/svg/microphone.svg?react'
 import WarnSvg from '@/assets/svg/warn.svg?react'
 import MaskSvg from '@/assets/svg/mask.svg?react'
 import { useForm } from 'react-hook-form'
+import { MenuOutlined } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next'
 
 const Layout = () => {
   const ws = useBaseStore((state) => state.ws)
@@ -23,8 +25,10 @@ const Layout = () => {
   const [isInfoModel, setIsInfoModel] = useState(false)
   const [isSystemModel, setIsSystemModel] = useState(false)
   const [globalError, setGlobalError] = useState('')
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const infoForm = useForm<iInfoForm>()
+  const { t } = useTranslation()
 
   // checkAudio 检查音频设备
   const checkAudio = async () => {
@@ -139,11 +143,20 @@ const Layout = () => {
   }, [])
 
   return (
-    <div className="relative w-full h-full bg-main-1/80 overflow-hidden">
+    <div className="relative w-full h-full flex flex-col bg-main-1/80 overflow-hidden">
+      <header className="h-12 px-4 flex items-center text-xl bg-main-2/50 text-main-3">
+        <span className="font-bold">{t('title')}</span>
+        <MenuOutlined
+          className="h-full ml-auto mr-2"
+          onClick={() => {
+            setMenuOpen(!menuOpen)
+          }}
+        />
+      </header>
       <StarSky className="absolute bg-black -z-10" />
       <div
-        className="absolute w-12 h-12 right-2 top-4 p-2 bg-gray-800 border-2 border-main-2 rounded-full cursor-pointer hover:animate-breath
-            after:shadow-2 after:shadow-main-3 after:h-full after:w-full after:rounded-full after:absolute after:top-0 after:left-0"
+        className={`absolute w-12 h-12 right-2 top-16 p-2 bg-gray-800 border-2 border-main-2 rounded-full cursor-pointer transition-all ${menuOpen ? 'delay-100' : 'opacity-0 -mt-4 delay-300'} hover:animate-breath
+            after:shadow-2 after:shadow-main-3 after:h-full after:w-full after:rounded-full after:absolute after:top-0 after:left-0`}
         title="个人信息"
         onClick={() => {
           setIsInfoModel(true)
@@ -180,16 +193,16 @@ const Layout = () => {
         }
       >
         <div
-          className="absolute w-12 h-12 right-2 top-20 p-2 bg-gray-800 border-2 border-main-2 rounded-full cursor-pointer hover:animate-breath
-            after:shadow-2 after:shadow-main-3 after:h-full after:w-full after:rounded-full after:absolute after:top-0 after:left-0"
+          className={`absolute w-12 h-12 right-2 top-32 p-2 bg-gray-800 border-2 border-main-2 rounded-full cursor-pointer transition-all ${menuOpen ? ' delay-200' : 'opacity-0 -mt-4 delay-200'} hover:animate-breath
+            after:shadow-2 after:shadow-main-3 after:h-full after:w-full after:rounded-full after:absolute after:top-0 after:left-0`}
           title="切换麦克风"
         >
           <MicroPhoneSvg className="w-full text-main-3" />
         </div>
       </Popover>
       <div
-        className="absolute w-12 h-12 right-2 top-36 p-2 bg-gray-800 border-2 border-main-2 rounded-full cursor-pointer hover:animate-breath
-            after:shadow-2 after:shadow-main-3 after:h-full after:w-full after:rounded-full after:absolute after:top-0 after:left-0"
+        className={`absolute w-12 h-12 right-2 top-48 p-2 bg-gray-800 border-2 border-main-2 rounded-full cursor-pointer transition-all ${menuOpen ? ' delay-300' : 'opacity-0 -mt-4 delay-100'} hover:animate-breath
+            after:shadow-2 after:shadow-main-3 after:h-full after:w-full after:rounded-full after:absolute after:top-0 after:left-0`}
         title="系统信息"
         onClick={() => {
           setIsSystemModel(true)
@@ -210,7 +223,7 @@ const Layout = () => {
             Form: {
               fontSize: 16,
               labelColor: 'rgba(222,222,222,0.7)',
-              fontFamily: 'Gap YeZiGongChangXiaoShiTou'
+              fontFamily: 'en-font zh-font'
             }
           }
         }}
@@ -228,8 +241,8 @@ const Layout = () => {
           destroyOnClose
         >
           <Toggle
-            lLabel="信息"
-            rLabel="预览"
+            lLabel={t('infoTag')}
+            rLabel={t('previewTag')}
             lComponent={
               <div
                 className="phone:w-64 desktop:w-80 p-5 flex flex-col justify-center rounded-2xl box-border border-2 border-white/0 shadow-2 shadow-blue-400/40"
@@ -242,26 +255,26 @@ const Layout = () => {
                   autoComplete="off"
                   onFinish={infoForm.handleSubmit(updateLocalInfo)}
                 >
-                  <Form.Item name="name" label="昵称" required>
+                  <Form.Item name="name" label={t('nickname')} required>
                     <Input
                       {...infoForm.register('name')}
                       defaultValue={infoForm.getValues('name')}
                       style={{
                         background: 'transparent',
                         color: 'white',
-                        fontFamily: 'Gap YeZiGongChangXiaoShiTou'
+                        fontFamily: 'en-font zh-font'
                       }}
                       onChange={(e) => infoForm.setValue('name', e.target.value)}
                     />
                   </Form.Item>
-                  <Form.Item name="avatar" label="头像">
+                  <Form.Item name="avatar" label={t('avatar')}>
                     <Input
                       {...infoForm.register('avatar')}
                       defaultValue={infoForm.getValues('avatar')}
                       style={{
                         background: 'transparent',
                         color: 'white',
-                        fontFamily: 'Gap YeZiGongChangXiaoShiTou'
+                        fontFamily: 'en-font zh-font'
                       }}
                       onChange={(e) => infoForm.setValue('avatar', e.target.value)}
                     />
@@ -271,7 +284,7 @@ const Layout = () => {
                       type="submit"
                       className="float-right px-4 py-1 text-main-4 hover:text-main-3 border-2 border-main-4 hover:border-main-3 rounded-lg"
                     >
-                      确定
+                      {t('submit')}
                     </button>
                   </Form.Item>
                 </Form>
@@ -286,7 +299,7 @@ const Layout = () => {
                       infoForm.watch('avatar') ||
                       'https://img0.pixhost.to/images/614/527153430_boy_smile_dog_1006791_240x320.jpg'
                     }
-                    alt="头像"
+                    alt={t('avatar')}
                   />
                 </div>
                 <div className="max-w-48 overflow-hidden text-3xl text-nowrap">
@@ -314,11 +327,11 @@ const Layout = () => {
               background: `#222831 padding-box, linear-gradient(145deg, transparent 35%,#393E46, #00ADB5) border-box`
             }}
           >
-            <p className="text-center text-2xl text-white mb-2">VV语音</p>
-            <p>·基于WebRTC的开源Web端语音聊天系统</p>
-            <p>·支持多人房间语音</p>
-            <p>·完全开源免费</p>
-            <p>·简单部署，操作方便</p>
+            <p className="text-center text-2xl text-white mb-2">{t('title')}</p>
+            <p>{t('desc1')}</p>
+            <p>{t('desc2')}</p>
+            <p>{t('desc3')}</p>
+            <p>{t('desc4')}</p>
             <p className="mt-2">Github Link：</p>
             <p>
               <a href="https://github.com/kiritoxjf/VV-Web-Chat" target="_blank">

@@ -7,6 +7,7 @@ export const createClickText = (x: number, y: number, text: string) => {
 
   // 位置
   textEffect.style.zIndex = '30'
+  textEffect.style.fontSize = '0.8rem'
   textEffect.style.left = x - 20 + 'px'
   textEffect.style.top = y - 20 + 'px'
 
