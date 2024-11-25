@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 const Home = () => {
-  const ws = useBaseStore((state) => state.ws)
+  const sse = useBaseStore((state) => state.sse)
   const id = useBaseStore((state) => state.id)
   const name = useBaseStore((state) => state.name)
   const avatar = useBaseStore((state) => state.avatar)
@@ -53,8 +53,8 @@ const Home = () => {
   }
 
   useEffect(() => {
-    if (ws) {
-      ws.onmessage = (e) => {
+    if (sse) {
+      sse.onmessage = (e) => {
         const json = JSON.parse(e.data)
         switch (json.key) {
           case 'register':
@@ -62,7 +62,7 @@ const Home = () => {
         }
       }
     }
-  }, [ws])
+  }, [sse])
 
   return (
     <div className="flex-1 flex flex-col justify-center items-center gap-4 text-main-3">

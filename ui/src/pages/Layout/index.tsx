@@ -13,7 +13,7 @@ import { MenuOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 
 const Layout = () => {
-  const ws = useBaseStore((state) => state.ws)
+  const sse = useBaseStore((state) => state.sse)
   const devices = useBaseStore((state) => state.devices)
   const updateWebSocket = useBaseStore((state) => state.updateWebsocket)
   const updateName = useBaseStore((state) => state.updateName)
@@ -109,16 +109,16 @@ const Layout = () => {
 
   // 初始化websocket
   const initWebSocket = () => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    const protocol = window.location.protocol
     const url = window.location.host
-    const ws = new WebSocket(`${protocol}//${url}/ws`)
-    updateWebSocket(ws)
+    const sse = new EventSource(`${protocol}//${url}/api/stream`)
+    updateWebSocket(sse)
   }
 
   // 关闭websocket
   const closeWebSocket = () => {
-    if (ws) {
-      ws.close()
+    if (sse) {
+      sse.close()
     }
   }
 

@@ -6,7 +6,10 @@ import (
 	"net/http"
 )
 
-// Offer 发送Offer
+// Offer
+// @Description 发送Offer
+// @Author kiritoxjf 2024-11-22 20:03:17
+// @Param c *gin.Context
 func Offer(c *gin.Context) {
 	var json struct {
 		Source string `json:"source"`
@@ -44,16 +47,14 @@ func Offer(c *gin.Context) {
 		"offer":  json.Offer,
 	}
 
-	if err := target.SafeWriteJson(offerJson); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"message": "发送Offer失败",
-		})
-		return
-	}
+	target.EnqueueMsg(offerJson)
 	c.JSON(http.StatusOK, gin.H{})
 }
 
-// Answer 回复Answer
+// Answer
+// @Description 回复Answer
+// @Author kiritoxjf 2024-11-22 20:03:07
+// @Param c *gin.Context
 func Answer(c *gin.Context) {
 	var json struct {
 		Source string `json:"source"`
@@ -91,16 +92,14 @@ func Answer(c *gin.Context) {
 		"avatar": json.Avatar,
 		"answer": json.Answer,
 	}
-	if err := target.SafeWriteJson(answerJson); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"message": "发送Answer失败",
-		})
-		return
-	}
+	target.EnqueueMsg(answerJson)
 	c.JSON(http.StatusOK, gin.H{})
 }
 
-// ICE 发送ICE
+// ICE
+// @Description 发送ICE
+// @Author kiritoxjf 2024-11-22 20:02:56
+// @Param c *gin.Context
 func ICE(c *gin.Context) {
 	var json struct {
 		Source    string `json:"source"`
@@ -134,11 +133,6 @@ func ICE(c *gin.Context) {
 		"id":        json.Source,
 		"candidate": json.Candidate,
 	}
-	if err := target.SafeWriteJson(iceJson); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"message": "发送ICE失败",
-		})
-		return
-	}
+	target.EnqueueMsg(iceJson)
 	c.JSON(http.StatusOK, gin.H{})
 }

@@ -4,6 +4,7 @@ import { createBrowserRouter, Navigate, RouteObject, RouterProvider } from 'reac
 const Layout = lazy(() => import('@/pages/Layout'))
 const Home = lazy(() => import('@/pages/Home'))
 const Room = lazy(() => import('@/pages/Room'))
+const Monitor = lazy(() => import('@/pages/Monitor'))
 
 const routes: RouteObject[] = [
   {
@@ -19,6 +20,10 @@ const routes: RouteObject[] = [
         element: <Room />
       }
     ]
+  },
+  {
+    path: '/monitor/:key',
+    element: <Monitor />
   },
   {
     path: '*',

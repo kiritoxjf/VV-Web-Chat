@@ -13,16 +13,15 @@ export default defineConfig({
     host: '0.0.0.0',
     // 反向代理
     proxy: {
-      '/ws': {
-        target: 'ws://127.0.0.1:8080',
-        ws: true,
+      '/api': {
+        target: 'http://127.0.0.1:8080',
         changeOrigin: true,
-        rewrite: (path) => path,
+        // rewrite: (path) => path.replace(/^\/api/, ''),
         headers: {
           'X-Real-IP': '127.0.0.1'
         }
       },
-      '/api': {
+      '/auth': {
         target: 'http://127.0.0.1:8080',
         changeOrigin: true,
         // rewrite: (path) => path.replace(/^\/api/, ''),

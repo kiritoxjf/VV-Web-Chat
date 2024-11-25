@@ -15,7 +15,7 @@ const Room = () => {
   const name = useBaseStore((state) => state.name)
   const avatar = useBaseStore((state) => state.avatar)
   const room = useBaseStore((state) => state.room)
-  const ws = useBaseStore((state) => state.ws)
+  const sse = useBaseStore((state) => state.sse)
   const stream = useBaseStore((state) => state.stream)
   const updateRoom = useBaseStore((state) => state.updateRoom)
 
@@ -86,11 +86,11 @@ const Room = () => {
   }
 
   // 成员加入
-  const otherJoin = async (id: string) => {
+  const otherJoin = async (info: { id: string; name: string; avatar: string}) => {
     const user: iMember = {
-      id,
-      name: '',
-      avatar: '',
+      id: info.id,
+      name: info.name,
+      avatar: info.avatar,
       peer: new RTCPeerConnection(),
       stream: new MediaStream()
     }
@@ -118,7 +118,7 @@ const Room = () => {
       if (e.candidate) {
         const json = {
           source: localID,
-          target: id,
+          target: info.id,
           candidate: JSON.stringify(e.candidate)
         }
         post('/api/ice', json)
@@ -127,7 +127,7 @@ const Room = () => {
 
     const json = {
       source: localID,
-      target: id,
+      target: info.id,
       name,
       avatar,
       offer: JSON.stringify(offer)
@@ -246,13 +246,13 @@ const Room = () => {
       navigate('/')
     }
 
-    // 添加ws监听
-    if (ws) {
-      ws.onmessage = (e) => {
+    // 添加sse监听
+    if (sse) {
+      sse.onmessage = (e) => {
         const json = JSON.parse(e.data)
         switch (json.key) {
           case 'join':
-            otherJoin(json.id)
+            otherJoin(json)
             break
           case 'offer':
             acceptOffer(json)

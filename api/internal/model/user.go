@@ -1,98 +1,92 @@
 package model
 
 import (
-	"github.com/gorilla/websocket"
-	"kiritoxjf/vv_chat/pkg"
+	"github.com/gin-gonic/gin"
 	"sync"
+	"sync/atomic"
+	"time"
 )
 
 // iUser 用户
 type iUser struct {
-	ws     *websocket.Conn
-	roomId string
-	ip     string
-	mutex  sync.Mutex
+	stream *gin.Context
+	Room   atomic.Value
+	sendCh chan interface{}
 }
 
-// iUserManager 用户管理器
+// EnqueueMsg 添加消息队列
+func (u *iUser) EnqueueMsg(msg interface{}) {
+	select {
+	case u.sendCh <- msg:
+	default:
+		go func() {
+			<-time.After(2)
+			u.EnqueueMsg(msg)
+		}()
+	}
+}
+
+// writePump 消息队列
+func (u *iUser) writePump() {
+	for msg := range u.sendCh {
+		u.stream.SSEvent("message", msg)
+		u.stream.Writer.Flush()
+	}
+}
+
 type iUserManager struct {
-	users map[string]*iUser
-	mutex sync.Mutex
+	users sync.Map
+	size  int
 }
 
 // UserManager 管理器
 var UserManager = &iUserManager{
-	users: make(map[string]*iUser),
+	size: 0,
 }
 
 // AddUser 添加用户
-func (m *iUserManager) AddUser(id string, ip string, ws *websocket.Conn) *iUser {
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
-	m.users[id] = &iUser{
-		ws:     ws,
-		ip:     ip,
-		roomId: "",
+func (m *iUserManager) AddUser(id string, stream *gin.Context) *iUser {
+	user := &iUser{
+		stream: stream,
+		sendCh: make(chan interface{}, 200),
 	}
-	return m.users[id]
+	user.Room.Store("")
+	go user.writePump()
+	m.users.Store(id, user)
+	m.size++
+	return user
 }
 
 // GetUser 获取用户
 func (m *iUserManager) GetUser(id string) (*iUser, bool) {
-	user, exist := m.users[id]
-	return user, exist
-}
-
-// JoinRoom 加入房间
-func (u *iUser) JoinRoom(roomId string) {
-	u.mutex.Lock()
-	defer u.mutex.Unlock()
-	u.roomId = roomId
-}
-
-// LeaveRoom 离开房间
-func (u *iUser) LeaveRoom() {
-	u.mutex.Lock()
-	defer u.mutex.Unlock()
-	u.roomId = ""
-}
-
-// SafeWriteJson 互斥写入
-func (u *iUser) SafeWriteJson(msg interface{}) error {
-	u.mutex.Lock()
-	conn := u.ws
-	err := conn.WriteJSON(msg)
-	if err != nil {
-		return err
+	user, exist := m.users.Load(id)
+	if exist {
+		return user.(*iUser), exist
 	}
-	u.mutex.Unlock()
-	return nil
+	return nil, false
+}
+
+// SetRoom 设置用户房间号
+func (m *iUserManager) SetRoom(id string, room string) {
+	u, e := m.GetUser(id)
+	if e {
+		u.SetRoom(room)
+		m.users.Store(id, u)
+	}
+}
+
+// SetRoom 设置用户房间号
+func (u *iUser) SetRoom(id string) {
+	u.Room.Store(id)
 }
 
 // DelUser 删除用户
 func (m *iUserManager) DelUser(id string) {
-	if m.users[id].roomId != "" {
-		leaveJson := map[string]string{
-			"key":  "leave",
-			"id":   id,
-			"code": pkg.StatusOK,
-		}
-		room, _ := RoomManager.GetRoom(m.users[id].roomId)
-		if err := room.BroadCast(id, leaveJson); err != nil {
-			println(err.Error())
-		}
-		room.DelMember(id)
-	}
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
-	delete(m.users, id)
+	m.users.Delete(id)
+	m.size--
 }
 
-// ListUser 获取用户列表
-func (m *iUserManager) ListUser() []string {
-	var ids []string
-	for u := range m.users {
-		ids = append(ids, u)
-	}
-	return ids
+// GetNumb 获取用户数
+func (m *iUserManager) GetNumb() int {
+	return m.size
 }

@@ -1,103 +1,130 @@
 package model
 
 import (
-	"kiritoxjf/vv_chat/pkg"
+	"errors"
 	"sync"
 )
 
 // iRoom 房间
 type iRoom struct {
-	id      string
 	Members []string
-	mutex   sync.Mutex
+	size    int
+	mutex   sync.RWMutex
 }
 
-// iRoomManager
+// iRoomManager 房间管理器
 type iRoomManager struct {
-	rooms map[string]*iRoom
-	mutex sync.Mutex
+	rooms sync.Map
+	size  int
 }
 
-// RoomManager 管理器
 var RoomManager = &iRoomManager{
-	rooms: make(map[string]*iRoom),
+	size: 0,
 }
 
-// CreateRoom 创建房间
-func (m *iRoomManager) CreateRoom(owner string) string {
-	m.mutex.Lock()
-	id := pkg.GenerateRandomString(5)
-	m.rooms[id] = &iRoom{
-		id: id,
-		Members: []string{
-			owner,
-		},
-	}
-	m.mutex.Unlock()
-	return id
+// RoomList
+// @Description 房间列表
+// @Author kiritoxjf 2024-11-22 18:46:43
+// @Return []string
+func (m *iRoomManager) RoomList() []string {
+	list := make([]string, 0)
+	m.rooms.Range(func(key, value interface{}) bool {
+		list = append(list, key.(string))
+		return true
+	})
+	return list
 }
 
-// DelRoom 删除房间
-func (m *iRoomManager) DelRoom(id string) {
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
-	delete(m.rooms, id)
+// CreateRoom
+// @Description 创建房间
+// @Author kiritoxjf 2024-11-22 18:46:53
+// @Param id string
+func (m *iRoomManager) CreateRoom(id string) {
+	m.rooms.Store(id, &iRoom{Members: []string{}, size: 0})
+	m.size++
 }
 
-// GetRoom 获取房间
+// GetRoom
+// @Description 获取房间
+// @Author kiritoxjf 2024-11-22 18:48:02
+// @Param id string
+// @Return bool
 func (m *iRoomManager) GetRoom(id string) (*iRoom, bool) {
-	room, exist := m.rooms[id]
-	return room, exist
+	room, exist := m.rooms.Load(id)
+	if exist {
+		return room.(*iRoom), exist
+	}
+	return nil, false
 }
 
-// DelMember 删除成员
-func (r *iRoom) DelMember(id string) {
-	r.mutex.Lock()
-	defer r.mutex.Unlock()
-	if len(r.Members) == 1 {
-		RoomManager.DelRoom(r.id)
+// JoinRoom
+// @Description 加入房间
+// @Author kiritoxjf 2024-11-22 19:42:53
+// @Param id string
+// @Param room string
+// @Return error
+func (m *iRoomManager) JoinRoom(id string, room string) error {
+	value, ok := m.rooms.Load(room)
+	if !ok {
+		return errors.New("房间不存在")
 	}
-	for i, member := range r.Members {
-		if member == id {
-			r.Members = append(r.Members[:i], r.Members[i+1:]...)
-		}
+	r, ok := value.(*iRoom)
+	if ok {
+		r.mutex.Lock()
+		r.Members = append(r.Members, id)
+		r.size++
+		r.mutex.Unlock()
 	}
-}
-
-// ListRoom 房间列表
-func (m *iRoomManager) ListRoom() []string {
-	var rooms []string
-	for room := range m.rooms {
-		rooms = append(rooms, room)
-	}
-	return rooms
-}
-
-// JoinMember 加入房间
-func (r *iRoom) JoinMember(id string) error {
-	r.mutex.Lock()
-	defer r.mutex.Unlock()
-	joinJson := map[string]string{
-		"key":  "join",
-		"id":   id,
-		"code": pkg.StatusOK,
-	}
-	if err := r.BroadCast(id, joinJson); err != nil {
-		return err
-	}
-	r.Members = append(r.Members, id)
+	m.rooms.Store(room, r)
 	return nil
 }
 
-// BroadCast 广播
-func (r *iRoom) BroadCast(id string, msg interface{}) error {
+// LeaveRoom
+// @Description 离开房间
+// @Author kiritoxjf 2024-11-22 19:04:00
+// @Param id string
+// @Param room string
+// @Return error
+
+func (m *iRoomManager) LeaveRoom(id string, room string) error {
+	value, ok := m.rooms.Load(room)
+	if !ok {
+		return errors.New("房间不存在")
+	}
+	r, ok := value.(*iRoom)
+	if ok {
+		if r.size == 1 {
+			m.rooms.Delete(room)
+			m.size--
+			return nil
+		} else {
+			r.mutex.Lock()
+			for i, member := range r.Members {
+				if member == id {
+					r.Members = append(r.Members[:i], r.Members[i+1:]...)
+				}
+			}
+			r.size--
+			r.mutex.Unlock()
+		}
+	}
+	return nil
+}
+
+func (m *iRoomManager) GetNumb() int {
+	return m.size
+}
+
+// BroadCast
+// @Description 广播
+// @Author kiritoxjf 2024-11-22 19:06:23
+// @Param id string
+// @Param msg interface{}
+func (r *iRoom) BroadCast(id string, msg interface{}) {
 	for _, member := range r.Members {
 		if member != id {
 			u, _ := UserManager.GetUser(member)
-			if err := u.SafeWriteJson(msg); err != nil {
-				return err
-			}
+			u.EnqueueMsg(msg)
 		}
 	}
-	return nil
 }

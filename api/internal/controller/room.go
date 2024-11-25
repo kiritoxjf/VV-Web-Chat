@@ -3,11 +3,25 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"kiritoxjf/vv_chat/internal/model"
-	"kiritoxjf/vv_chat/pkg"
+	"kiritoxjf/vv_chat/internal/services"
 	"net/http"
 )
 
-// CreateRoom 创建房间
+// RoomList
+// @Description 房间列表
+// @Author kiritoxjf 2024-11-22 18:17:35
+// @Param c *gin.Context
+func RoomList(c *gin.Context) {
+	list := model.RoomManager.RoomList()
+	c.JSON(http.StatusOK, gin.H{
+		"list": list,
+	})
+}
+
+// CreateRoom
+// @Description 创建房间
+// @Author kiritoxjf 2024-11-22 18:14:34
+// @Param c *gin.Context
 func CreateRoom(c *gin.Context) {
 	var json struct {
 		ID string `json:"id"`
@@ -19,11 +33,9 @@ func CreateRoom(c *gin.Context) {
 		return
 	}
 	if _, exist := model.UserManager.GetUser(json.ID); exist == true {
-		id := model.RoomManager.CreateRoom(json.ID)
-		user, _ := model.UserManager.GetUser(json.ID)
-		user.JoinRoom(id)
+		room := services.CreateRoom(json.ID)
 		c.JSON(http.StatusOK, gin.H{
-			"id": id,
+			"id": room,
 		})
 		return
 	} else {
@@ -34,69 +46,74 @@ func CreateRoom(c *gin.Context) {
 	}
 }
 
-// JoinRoom 加入房间
+// JoinRoom
+// @Description 加入房间
+// @Author kiritoxjf 2024-11-22 18:52:21
+// @Param c *gin.Context
 func JoinRoom(c *gin.Context) {
 	var json struct {
 		ID     string `json:"id"`
+		Room   string `json:"roomId"`
 		Name   string `json:"name"`
 		Avatar string `json:"avatar"`
-		Room   string `json:"roomId"`
 	}
+
 	if err := c.ShouldBind(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "传参错误",
 		})
 		return
 	}
-	user, exist := model.UserManager.GetUser(json.ID)
-	if exist != true {
+	if _, exist := model.UserManager.GetUser(json.ID); exist == true {
+		if err := services.JoinRoom(json.ID, json.Room); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+		joinJson := map[string]string{
+			"key":    "join",
+			"id":     json.ID,
+			"name":   json.Name,
+			"avatar": json.Avatar,
+		}
+		services.BroadCast(json.ID, json.Room, joinJson)
+		c.JSON(http.StatusOK, gin.H{})
+		return
+	} else {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
 			"message": "非法用户",
 		})
 		return
 	}
-	room, exist := model.RoomManager.GetRoom(json.Room)
-	if exist != true {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"message": "房间不存在",
-		})
-		return
-	}
-
-	if err := room.JoinMember(json.ID); err != nil {
-		return
-	}
-	user.JoinRoom(json.Room)
-	c.JSON(http.StatusOK, gin.H{})
 }
 
-// LeaveRoom 离开房间
+// LeaveRoom
+// @Description 离开房间
+// @Author kiritoxjf 2024-11-22 18:18:10
+// @Param c *gin.Context
 func LeaveRoom(c *gin.Context) {
 	id := c.Query("id")
-	roomId := c.Query("room")
-	user, exist := model.UserManager.GetUser(id)
+	u, exist := model.UserManager.GetUser(id)
 	if !exist {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "非法用户",
-		})
-		return
-	}
-	user.LeaveRoom()
-	room, exist := model.RoomManager.GetRoom(roomId)
-	if !exist {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"message": "房间不存在",
 		})
 		return
 	}
 	leaveJson := map[string]string{
-		"key":  "leave",
-		"id":   id,
-		"code": pkg.StatusOK,
+		"key": "leave",
+		"id":  id,
 	}
-	if err := room.BroadCast(id, leaveJson); err != nil {
-		println(err.Error())
+	room := u.Room.Load().(string)
+	r, _ := model.RoomManager.GetRoom(room)
+	r.BroadCast(id, leaveJson)
+	if err := services.LeaveRoom(id); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
 	}
-	room.DelMember(id)
+	u.SetRoom("")
 	c.JSON(http.StatusOK, gin.H{})
 }
